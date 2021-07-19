@@ -9,6 +9,7 @@ def tick():
     return print("hello world")
 
 import tkinter as tk
+import tkinter.ttk as ttk
 
 ROWS = 30
 COLUMNS = 30
@@ -39,12 +40,17 @@ play_button.pack()
 grid_frame = tk.Frame(window)
 grid_frame.pack(fill="both")
 
+cell_style = ttk.Style()
+
+cell_style.configure('empty_cell', foreground = 'red')
+
 # Ajouter une grille
 for r in range(ROWS):
-    tk.Grid.rowconfigure(grid_frame, r, weight=1)
+    #tk.Grid.rowconfigure(grid_frame, r, weight=1)
     for c in range(COLUMNS):
-        tk.Grid.columnconfigure(grid_frame, c, weight=1)
-        tk.Button(grid_frame).grid(row=r, column=c, sticky="NSEW")
+        #tk.Grid.columnconfigure(grid_frame, c, weight=1)
+        tk.Canvas(grid_frame, bg="red").grid(row=r, column=c, sticky="NSEW")
+        #tk.Button(grid_frame).grid(row=r, column=c, sticky="NSEW")
 
 
 # Affichage

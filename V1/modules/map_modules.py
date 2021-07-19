@@ -4,26 +4,26 @@
 import numpy as np
 import params
 
+"""
 class Cell:
     
     def __init__(self, alive=False):
         self.alive = alive
         #self.neighbors = get_neighbors()
-        
+"""        
 
 class Map:
     
-    def __init__(self, length, width):
-        self.length = length
-        self.width = width
-        self.grid = np.zeros((length, width))
+    def __init__(self):
+        self.height = params.MAP_HEIGHT
+        self.width = params.MAP_WIDTH
+        self.grid = np.zeros((self.height, self.width))
         
-    def add_life(self, life_locations):
+    def load_lifes(self, life_locations):
         for loc in life_locations:
             self.grid[loc[0], loc[1]] = params.LIFE_VALUE
             
     def tick(self):
-        
         ### UPDATE MATRICE after 1 tick
         
         g = self.grid + game_of_life_weight_grid(self.grid) / 100
@@ -31,6 +31,8 @@ class Map:
 
         self.grid = ((g == np.full(sh, 3)) + (g == np.full(sh, 102)) + (g == np.full(sh, 103))) * np.ones(sh) * 100
         
+        
+
 
 ## Other functions
 
