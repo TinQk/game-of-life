@@ -4,6 +4,7 @@
 import tkinter as tk
 import params
 import main
+import numpy as np
 
 # Display map with tkinter
 class Display:
@@ -21,12 +22,33 @@ class Display:
         
         self.c.m = m
         
-        # Create a grid of None to store the rectangles references to the tiles (to delete them)
-        self.c.tiles = [[None for _ in range(params.MAP_WIDTH)] for _ in range(params.MAP_HEIGHT)]
+        # Create a grid of white rectangles and store the references
+        self.c.tiles = self.create_tiles()
         
     
-    def update(self):
-        self.display_grid()
+    def create_tiles(self):
+        row = params.MAP_HEIGHT
+        col = params.MAP_WIDTH
+        col_width = params.SCREEN_WIDTH/col
+        row_height = params.SCREEN_HEIGHT/row
+        
+        tiles = np.zeros((row, col))
+        for r in range(row):
+            for c in range(col):
+                tiles[r][c] = self.c.create_rectangle(c*col_width, r*row_height, (c+1)*col_width, (r+1)*row_height, fill="red")
+        
+                
+        return tiles
+        
+    
+    def update(self, dif_grid):
+        for r in range(params.MAP_HEIGHT):
+            for c in range(params.MAP_WIDTH):
+                if dif_grid[r][c] == params.LIFE_VALUE:
+                    self.bring_life(r, c)
+                if dif_grid[r][c] == -params.LIFE_VALUE:
+                    self.kill(r, c)
+
         
     def kill(self, row, col):
         if not self.c.tiles[row][col]:

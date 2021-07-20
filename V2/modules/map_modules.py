@@ -25,11 +25,14 @@ class Map:
             
     def tick(self):
         ### UPDATE MATRICE after 1 tick
+        old_grid = self.grid
         
         g = self.grid + game_of_life_weight_grid(self.grid) / 100
         sh = g.shape
 
         self.grid = ((g == np.full(sh, 3)) + (g == np.full(sh, 102)) + (g == np.full(sh, 103))) * np.ones(sh) * 100
+        
+        return self.grid - old_grid
         
         
 
