@@ -4,19 +4,11 @@
 import numpy as np
 import params
 
-"""
-class Cell:
-    
-    def __init__(self, alive=False):
-        self.alive = alive
-        #self.neighbors = get_neighbors()
-"""        
-
 class Map:
     
     def __init__(self):
-        self.height = params.MAP_HEIGHT
-        self.width = params.MAP_WIDTH
+        self.height = params.ROWS
+        self.width = params.COLUMNS
         self.grid = np.zeros((self.height, self.width))
         
     def load_lifes(self, life_locations):
@@ -34,11 +26,8 @@ class Map:
         
         return self.grid - old_grid
         
-        
-
 
 ## Other functions
-
 def botline_to_top(m):
     [top, bot] = np.split(m, [m.shape[0]-1], axis=0)
     return np.vstack((bot, top))

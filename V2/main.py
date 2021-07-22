@@ -26,21 +26,13 @@ class App():
         self.m = map_modules.Map()
         self.m.load_lifes(params.LIFES)
         
-        # init affichage grille
-        self.disp = display_modules.Display(root, self.m)
-        
-        # Bouton play
-        tk.Button(root, text="play", command=self.play).pack()
+        # init interface (dont affichage)
+        self.int = display_modules.Interface(root, self.m)
         
         # Display pattern initial
-        self.disp.update(-1*self.m.grid)
-        
-    def play(self):
-        dif_grid = self.m.tick()
-        print(self.m.grid)
-        self.disp.update(dif_grid)
-    
+        self.int.update(self.m.grid)
 
+    
 def main():
     root = tk.Tk()
     App(root)

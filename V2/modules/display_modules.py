@@ -2,91 +2,113 @@
 # -*- coding: utf-8 -*-
 
 import tkinter as tk
-import params
-import main
-import numpy as np
+import params as p
 
 # Display map with tkinter
-class Display:
+class Interface:
     
     def __init__(self, root, m):
 
         self.root = root
 
-        # Canvas principal
-        self.c = tk.Canvas(self.root, width=params.SCREEN_WIDTH, height=params.SCREEN_HEIGHT, borderwidth=5, background='blue')
+        # Canvas principal (acceuille la grille)
+        self.c = tk.Canvas(self.root, width=p.SCREEN_WIDTH, height=p.SCREEN_HEIGHT, borderwidth=0, background='white')
         
-        # Create the mouse click event binding
-        self.c.bind("<Button-1>", callback)
-        self.c.pack()
-        
+        # link back map to canvas
         self.c.m = m
         
         # Create a grid of white rectangles and store the references
         self.c.tiles = self.create_tiles()
         
+        # Create the mouse click event binding
+        self.c.bind("<Button-1>", 
+                    lambda event, test="test": 
+                        self.click_grid(event, test))
+        self.c.pack()
+
+        # Bouton play
+        tk.Button(self.root, text="play", command=self.play).pack()
+        
+        # Bouton print
+        tk.Button(self.root, text="print", command=self.print).pack()
+        
+        
+    def click_grid(self, event, test):
+        # Calculate column and row number
+        col = int(event.x//p.COL_SIZE)
+        row = int(event.y//p.ROW_SIZE)
+        
+        # If the cell is alive, kill it
+        if self.c.tiles[row][col].alive:
+            self.c.tiles[row][col].kill()
+            
+        # If the cell is dead, give it life
+        else:
+            self.c.tiles[row][col].give_life()
+            
+            
+    def play(self):
+        dif_grid = self.c.m.tick()
+        self.update(dif_grid)
+        
+    def print(self):
+        print(self.c.m.grid)
+        
     
     def create_tiles(self):
-        row = params.MAP_HEIGHT
-        col = params.MAP_WIDTH
-        col_width = params.SCREEN_WIDTH/col
-        row_height = params.SCREEN_HEIGHT/row
+        row = p.ROWS
+        col = p.COLUMNS
         
-        tiles = np.zeros((row, col))
+        tiles = []
         for r in range(row):
+            a = []
             for c in range(col):
-                tiles[r][c] = self.c.create_rectangle(c*col_width, r*row_height, (c+1)*col_width, (r+1)*row_height, fill="red")
-        
-                
+                a.append(Cell(self.c, (r, c)))
+            tiles.append(a)
         return tiles
         
     
     def update(self, dif_grid):
-        for r in range(params.MAP_HEIGHT):
-            for c in range(params.MAP_WIDTH):
-                if dif_grid[r][c] == params.LIFE_VALUE:
-                    self.bring_life(r, c)
-                if dif_grid[r][c] == -params.LIFE_VALUE:
-                    self.kill(r, c)
-
+        for r in range(p.ROWS):
+            for c in range(p.COLUMNS):
+                if dif_grid[r][c] == p.LIFE_VALUE:
+                    self.c.tiles[r][c].give_life()
+                if dif_grid[r][c] == -p.LIFE_VALUE:
+                    self.c.tiles[r][c].kill()
+                    
+    
         
-    def kill(self, row, col):
-        if not self.c.tiles[row][col]:
-            return
-        else:
-            self.c.delete(self.c.tiles[row][col])
-            self.c.tiles[row][col] = None
-            
-    def bring_life(self, row, col):
-        col_width = params.SCREEN_WIDTH/params.MAP_WIDTH
-        row_height = params.SCREEN_HEIGHT/params.MAP_HEIGHT
-        if not self.c.tiles[row][col]:
-            self.c.tiles[row][col] = self.c.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill="black")
-            
+class Cell:
+    
+    def __init__(self, canvas, coords):
+        self.c = canvas
+        self.coords = coords
+        r, c = self.coords
+        self.ref = canvas.create_rectangle(c*p.COL_SIZE, r*p.ROW_SIZE, (c+1)*p.COL_SIZE, (r+1)*p.ROW_SIZE, fill="white")
+        self.alive = False
+    
+    def give_life(self):
+        r, c = self.coords
+                
+        # création d'un rectangle noir
+        self.ref = self.c.create_rectangle(c*p.COL_SIZE, r*p.ROW_SIZE, (c+1)*p.COL_SIZE, (r+1)*p.ROW_SIZE, fill="black")
         
-    
+        self.alive = True
 
-def callback(click):
-    # Get rectangle diameters
-    col_width = click.widget.winfo_width()/params.MAP_WIDTH
-    row_height = click.widget.winfo_height()/params.MAP_HEIGHT
-    
-    # Calculate column and row number
-    col = int(click.x//col_width)
-    row = int(click.y//row_height)
-    
-    # If the tile is not filled, create a rectangle and store its id in "tiles"
-    if not click.widget.tiles[row][col]:
-        click.widget.tiles[row][col] = click.widget.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill="black")
         # changer la map
-        click.widget.m.grid[row][col] = params.LIFE_VALUE
+        self.c.m.grid[r][c] = p.LIFE_VALUE
+      
+    
+    def kill(self):
+        r, c = self.coords
         
-    # If the tile is filled, delete the rectangle and clear the reference
-    else:
-        click.widget.delete(click.widget.tiles[row][col])
-        click.widget.tiles[row][col] = None
+        self.c.delete(self.ref) # destruction du rectangle noir
+        
+        self.ref = None
+        self.alive = False
+        
         # changer la map
-        click.widget.m.grid[row][col] = 0
-
+        self.c.m.grid[r][c] = 0
+      
         
         
