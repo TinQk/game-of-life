@@ -10,22 +10,24 @@ class Interface:
     def __init__(self, root, m):
 
         self.root = root
-
-        # Canvas principal (acceuille la grille)
-        self.c = tk.Canvas(self.root, width=p.SCREEN_WIDTH, height=p.SCREEN_HEIGHT, borderwidth=0, background='white')
         
+        ### GRID
+        # Create main canvas for the grid display
+        self.c = tk.Canvas(self.root, width=p.SCREEN_WIDTH, height=p.SCREEN_HEIGHT, borderwidth=0, background='white')
+
         # link back map to canvas
         self.c.m = m
         
         # Create a grid of white rectangles and store the references
         self.c.tiles = self.create_tiles()
         
-        # Create the mouse click event binding
+        # Create the mouse click event binding on canvas
         self.c.bind("<Button-1>", 
                     lambda event, test="test": 
                         self.click_grid(event, test))
         self.c.pack()
 
+        ### MENUS AND BOUTONS
         # Bouton play
         tk.Button(self.root, text="play", command=self.play).pack()
         
@@ -50,6 +52,7 @@ class Interface:
     def play(self):
         dif_grid = self.c.m.tick()
         self.update(dif_grid)
+        
         
     def print(self):
         print(self.c.m.grid)
@@ -84,31 +87,21 @@ class Cell:
         self.c = canvas
         self.coords = coords
         r, c = self.coords
+        # Draw a rectangle on the canvas:
         self.ref = canvas.create_rectangle(c*p.COL_SIZE, r*p.ROW_SIZE, (c+1)*p.COL_SIZE, (r+1)*p.ROW_SIZE, fill="white")
         self.alive = False
     
     def give_life(self):
         r, c = self.coords
-                
-        # création d'un rectangle noir
-        self.ref = self.c.create_rectangle(c*p.COL_SIZE, r*p.ROW_SIZE, (c+1)*p.COL_SIZE, (r+1)*p.ROW_SIZE, fill="black")
-        
+        self.c.itemconfigure(self.ref, fill="black") # color cell in black
+        self.c.m.grid[r][c] = p.LIFE_VALUE # update map (back)
         self.alive = True
-
-        # changer la map
-        self.c.m.grid[r][c] = p.LIFE_VALUE
-      
     
     def kill(self):
         r, c = self.coords
-        
-        self.c.delete(self.ref) # destruction du rectangle noir
-        
-        self.ref = None
+        self.c.itemconfigure(self.ref, fill="white") # color cell in white
+        self.c.m.grid[r][c] = 0 # update map (back)
         self.alive = False
-        
-        # changer la map
-        self.c.m.grid[r][c] = 0
       
         
         
